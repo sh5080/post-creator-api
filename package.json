@@ -1,0 +1,24 @@
+{
+  "name": "post-creator",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "multer": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/joi": "^17.2.3",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.0.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
