@@ -1,5 +1,6 @@
 export interface ServerEnv {
   PORT: string;
+  FRONT_URL: string;
 }
 
 export interface GeminiEnv {

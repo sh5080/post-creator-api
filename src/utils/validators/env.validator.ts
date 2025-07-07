@@ -11,6 +11,11 @@ const envSchema = Joi.object<AppEnv>({
       "number.max": "SERVER.PORT는 65535보다 작거나 같아야 합니다.",
       "any.required": "SERVER.PORT는 필수입니다.",
     }),
+    FRONT_URL: Joi.string().uri().required().messages({
+      "string.base": "SERVER.FRONT_URL은 문자열이어야 합니다.",
+      "string.uri": "SERVER.FRONT_URL은 유효한 URL이어야 합니다.",
+      "any.required": "SERVER.FRONT_URL은 필수입니다.",
+    }),
   }).required(),
   GEMINI: Joi.object<GeminiEnv>({
     API_KEY: Joi.string()

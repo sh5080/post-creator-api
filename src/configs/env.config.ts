@@ -1,9 +1,14 @@
 import { AppEnv } from "../types/env.type";
 import { validateEnv } from "../utils/validators/env.validator";
+import * as dotenv from "dotenv";
+
+// .env 파일 로드
+dotenv.config();
 
 const rawEnv = {
   SERVER: {
     PORT: process.env.PORT!,
+    FRONT_URL: process.env.FRONT_URL!,
   },
   GEMINI: {
     API_KEY: process.env.GEMINI_API_KEY!,
