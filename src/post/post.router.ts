@@ -1,7 +1,16 @@
 import { Router } from "express";
-import { generatePostController } from "./post.controller";
+import { PostController } from "./post.controller";
 import { upload } from "../utils/image.util";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
-export const postRouter = Router();
+const router = Router();
+const postController = new PostController();
 
-postRouter.post("/", upload.array("images"), generatePostController);
+router.post(
+  "/",
+  authMiddleware,
+  upload.array("images"),
+  postController.generatePost
+);
+
+export const postRouter = router;
