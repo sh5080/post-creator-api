@@ -29,6 +29,6 @@ export const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB 파일 크기 제한 (필요에 따라 조정)
-    files: 10, // 최대 10개 파일 (필요에 따라 조정)
+    files: 5, // 최대 5개 파일 (필요에 따라 조정)
   },
 });
