@@ -10,6 +10,11 @@ const rawEnv = {
     PORT: process.env.PORT!,
     FRONT_URL: process.env.FRONT_URL!,
   },
+  AUTH: {
+    JWT_SECRET: process.env.JWT_SECRET!,
+    SALT: process.env.AUTH_SALT!,
+    VALID_CREDENTIALS: JSON.parse(process.env.VALID_CREDENTIALS!),
+  },
   GEMINI: {
     API_KEY: process.env.GEMINI_API_KEY!,
   },
