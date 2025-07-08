@@ -28,7 +28,7 @@ export const buildGeminiPrompt = (
 
   // 3. 키워드 및 횟수 요청
   if (keywords && keywords.length > 0) {
-    const keywordInstruction = `\n---필수 키워드---\n다음 키워드를 각 ${keywordCount}회 이상 본문에 자연스럽게 포함해 주세요: ${keywords.join(
+    const keywordInstruction = `\n---필수 키워드---\n다음 키워드를 각 ${keywordCount}회 본문에 자연스럽게 포함해 주세요: ${keywords.join(
       ", "
     )}\n`;
     promptParts.push({ text: keywordInstruction });
