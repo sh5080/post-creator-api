@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(geminiApiKey);
 
 // 사용할 Gemini 모델 (이미지 처리를 위해 -vision 모델 사용)
 // 최신 버전 사용을 권장하며, 'gemini-1.5-flash' 또는 'gemini-1.5-pro' 등 사용
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-2.5-flash";
 
 /**
  * Gemini API를 호출하여 블로그 포스트를 생성합니다.
