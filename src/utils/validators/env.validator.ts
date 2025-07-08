@@ -1,7 +1,14 @@
 import Joi from "joi";
-import { AppEnv, GeminiEnv, ServerEnv } from "../../types/env.type";
+import { AppEnv, AuthEnv, GeminiEnv, ServerEnv } from "../../types/env.type";
+import { CredentialRequest } from "../../types/request.type";
 
 // Joi 스키마 정의
+const credentialSchema = Joi.object<CredentialRequest>({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  role: Joi.string().optional(),
+});
+
 const envSchema = Joi.object<AppEnv>({
   SERVER: Joi.object<ServerEnv>({
     PORT: Joi.number().integer().min(1).max(65535).required().messages({
@@ -26,6 +33,18 @@ const envSchema = Joi.object<AppEnv>({
         "string.empty": "GEMINI.API_KEY는 비어 있을 수 없습니다.",
         "any.required": "GEMINI.API_KEY는 필수입니다.",
       }),
+  }).required(),
+  AUTH: Joi.object<AuthEnv>({
+    JWT_SECRET: Joi.string().required().messages({
+      "any.required": "AUTH.JWT_SECRET는 필수입니다.",
+    }),
+    SALT: Joi.string().required().messages({
+      "any.required": "AUTH.SALT는 필수입니다.",
+    }),
+    VALID_CREDENTIALS: Joi.array().items(credentialSchema).required().messages({
+      "any.required": "AUTH.VALID_CREDENTIALS는 필수입니다.",
+      "array.base": "AUTH.VALID_CREDENTIALS는 배열이어야 합니다.",
+    }),
   }).required(),
 }).unknown(true); // 알 수 없는 키를 허용하려면 false로 변경 (여기서는 env.ts에 정의된 것만 검사)
 
