@@ -1,6 +1,6 @@
 import express from "express";
 import { env } from "./configs/env.config";
-import { modules } from "./modules";
+import { routes } from "./routes";
 import cors from "cors";
 import { errorMiddleware } from "./middlewares/error.middleware";
 const PORT = env.SERVER.PORT;
@@ -15,7 +15,7 @@ app.use(
   })
 );
 
-modules(app);
+routes(app);
 app.use(errorMiddleware);
 
 app.listen(PORT, () => {
