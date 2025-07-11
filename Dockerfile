@@ -10,6 +10,4 @@ COPY . .
 
 RUN yarn build
 
-ENV PORT 8080
-
 CMD ["node", "dist/index.js"]
