@@ -14,18 +14,12 @@ class InputValidator {
         .items(Joi.string().min(2).max(50))
         .min(1)
         .max(5)
-        .default([])
-        .custom((value, helpers) => {
-          try {
-            return typeof value === "string" ? JSON.parse(value) : value;
-          } catch (err) {
-            return helpers.error("array.base");
-          }
-        })
         .messages({
           "array.min": "최소 1개 이상의 키워드가 필요합니다.",
           "array.max": "최대 5개의 키워드만 허용됩니다.",
-          "array.base": "keywords는 유효한 JSON 배열이어야 합니다.",
+          "array.base": "keywords는 배열 형식이어야 합니다.",
+          "string.min": "각 키워드는 최소 2자 이상이어야 합니다.",
+          "string.max": "각 키워드는 최대 50자까지 허용됩니다.",
         }),
       keywordCount: Joi.number()
         .integer()

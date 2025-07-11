@@ -9,6 +9,7 @@ import { BadRequestException } from "../types/response.type";
 export class PostController {
   generatePost = async (req: Request, res: Response) => {
     try {
+      req.body.keywords = JSON.parse(req.body.keywords);
       const { clientRequestPrompt, keywords, keywordCount } =
         validateBlogPostInput(req.body);
 
