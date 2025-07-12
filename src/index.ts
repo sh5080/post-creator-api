@@ -1,7 +1,7 @@
 import "module-alias/register";
 import express from "express";
 import { env } from "@common/configs/env.config";
-import { routes } from "./routes";
+import { routes } from "./domains/routes";
 import cors from "cors";
 import { errorMiddleware } from "@common/middlewares/error.middleware";
 import { connectDatabase } from "@common/configs/database.config";
