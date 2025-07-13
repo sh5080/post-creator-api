@@ -8,7 +8,15 @@
       "esModuleInterop": true,           // CommonJS/ES 모듈 간 호환성 활성화
       "skipLibCheck": true,              // 라이브러리 타입 검사 스킵 (컴파일 속도 향상)
       "forceConsistentCasingInFileNames": true, // 파일 이름 대소문자 일관성 강제
-      "resolveJsonModule": true          // JSON 모듈 임포트 허용
+      "resolveJsonModule": true,          // JSON 모듈 임포트 허용
+      "baseUrl": ".",
+      "paths": {
+        "@common/*": ["src/common/*"],
+        "@auth/*": ["src/domains/auth/*"],
+        "@gemini/*": ["src/domains/gemini/*"],
+        "@post/*": ["src/domains/post/*"],
+        "@user/*": ["src/domains/user/*"],
+      }
     },
     "include": ["src/**/*.ts"],          // 컴파일할 파일 지정
     "exclude": ["node_modules"]          // 컴파일에서 제외할 파일 지정
