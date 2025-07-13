@@ -16,9 +16,3 @@ export interface BlogPostRequest {
   keywords: string[];
   keywordCount: number;
 }
-
-export interface CredentialRequest {
-  email: string;
-  password: string;
-  role: string;
-}

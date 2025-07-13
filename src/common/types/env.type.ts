@@ -1,5 +1,3 @@
-import { CredentialRequest } from "./request.type";
-
 export interface ServerEnv {
   PORT: string;
   FRONT_URL: string;
@@ -13,7 +11,6 @@ export interface GeminiEnv {
 export interface AuthEnv {
   JWT_SECRET: string;
   SALT: string;
-  VALID_CREDENTIALS: CredentialRequest[];
 }
 
 export interface AppEnv {
