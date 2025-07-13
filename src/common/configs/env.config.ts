@@ -17,7 +17,6 @@ const rawEnv = {
   AUTH: {
     JWT_SECRET: process.env.JWT_SECRET!,
     SALT: process.env.AUTH_SALT!,
-    VALID_CREDENTIALS: JSON.parse(process.env.VALID_CREDENTIALS!),
   },
 };
 
