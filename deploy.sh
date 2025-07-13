@@ -28,7 +28,7 @@ required_vars=(
   "FRONT_URL"
   "JWT_SECRET"
   "AUTH_SALT"
-  "VALID_CREDENTIALS"
+  "MONGODB_URI"
 )
 
 for var in "${required_vars[@]}"; do
@@ -45,7 +45,7 @@ GEMINI_API_KEY: ${GEMINI_API_KEY}
 FRONT_URL: ${FRONT_URL}
 JWT_SECRET: ${JWT_SECRET}
 AUTH_SALT: ${AUTH_SALT}
-VALID_CREDENTIALS: '${VALID_CREDENTIALS}'
+MONGODB_URI: ${MONGODB_URI}
 EOL
 
 # cleanup 함수 정의
