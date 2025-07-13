@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
-import { createUserValidator } from "./dto/user.dto";
+import { createUserValidator, CreateUserResponseDto } from "./dto/user.dto";
 
 export class UserController {
   private userService: UserService;
@@ -10,11 +10,16 @@ export class UserController {
   }
 
   signup = async (req: Request, res: Response) => {
-    const dto = createUserValidator.validate(req.body);
     try {
+      const dto = createUserValidator.validate(req.body);
       const user = await this.userService.createUser(dto);
 
-      res.status(201).json({ user });
+      const responseDto: CreateUserResponseDto = {
+        email: user.email,
+        createdAt: user.createdAt,
+      };
+
+      res.status(201).json(responseDto);
     } catch (error) {
       throw error;
     }
