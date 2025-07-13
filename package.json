@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node -r tsconfig-paths/register src/index.ts"
   },
   "license": "MIT",
   "dependencies": {
@@ -25,6 +25,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^24.0.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
 }
