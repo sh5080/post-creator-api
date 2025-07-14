@@ -1,7 +1,7 @@
 import { BadRequestException } from "@common/types/response.type";
-import { hashPassword } from "@common/utils/crypto.util";
 import { User, USER_ROLE } from "@common/models/user.model";
 import { CreateUserDto } from "./dto/user.dto";
+import * as bcrypt from "bcrypt";
 
 export class UserService {
   async createUser(dto: CreateUserDto) {
@@ -10,7 +10,7 @@ export class UserService {
       throw new BadRequestException("이미 존재하는 이메일입니다.");
     }
 
-    const hashedPassword = await hashPassword(dto.password);
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = new User({
       email: dto.email,
       password: hashedPassword,
