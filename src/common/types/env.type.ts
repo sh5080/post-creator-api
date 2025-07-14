@@ -11,6 +11,8 @@ export interface GeminiEnv {
 export interface AuthEnv {
   JWT_SECRET: string;
   SALT: string;
+  ACCESS_TOKEN_EXPIRES_IN: string;
+  REFRESH_TOKEN_EXPIRES_IN: string;
 }
 
 export interface AppEnv {

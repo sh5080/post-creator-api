@@ -17,6 +17,8 @@ const rawEnv = {
   AUTH: {
     JWT_SECRET: process.env.JWT_SECRET!,
     SALT: process.env.AUTH_SALT!,
+    ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN!,
+    REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN!,
   },
 };
 
