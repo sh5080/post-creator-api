@@ -1,4 +1,16 @@
-import "module-alias/register";
+import { addAliases } from "module-alias";
+
+// 환경에 따른 경로 설정
+if (process.env.NODE_ENV === "development") {
+  addAliases({
+    "@common": __dirname + "/common",
+    "@auth": __dirname + "/domains/auth",
+    "@gemini": __dirname + "/domains/gemini",
+    "@post": __dirname + "/domains/post",
+    "@user": __dirname + "/domains/user",
+  });
+}
+
 import express from "express";
 import { env } from "@common/configs/env.config";
 import { routes } from "./domains/routes";
