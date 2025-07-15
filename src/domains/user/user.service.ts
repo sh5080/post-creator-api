@@ -12,6 +12,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = new User({
+      nickname: dto.nickname,
       email: dto.email,
       password: hashedPassword,
       role: USER_ROLE.USER,
