@@ -21,9 +21,8 @@ export const authMiddleware = async (
 ) => {
   const authHeader = req.headers.authorization;
   const refreshToken = req.cookies?.refreshToken;
-
   if (!authHeader) {
-    throw new UnauthorizedException("인증이 필요합니다.");
+    throw new UnauthorizedException("로그인후 이용이 가능합니다.");
   }
 
   try {
@@ -32,9 +31,6 @@ export const authMiddleware = async (
     req.user = decoded;
     next();
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      throw new ForbiddenException("유효하지 않은 토큰입니다.");
-    }
     // 액세스 토큰이 만료된 경우 리프레시 토큰으로 재발급 시도
     if (refreshToken && error instanceof jwt.TokenExpiredError) {
       try {
