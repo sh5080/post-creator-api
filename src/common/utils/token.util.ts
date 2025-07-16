@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-export async function sendToken(
+export async function sendAuthTokens(
   res: Response,
   accessToken: string,
   refreshToken: string
@@ -13,4 +13,8 @@ export async function sendToken(
     sameSite: "strict",
     maxAge: 14 * 24 * 60 * 60 * 1000, // 14일
   });
+}
+
+export async function sendActivityToken(res: Response, token: string) {
+  res.setHeader("X-A-Token", token);
 }

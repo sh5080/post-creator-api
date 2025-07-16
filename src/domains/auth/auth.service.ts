@@ -1,7 +1,7 @@
-import { User } from "@common/models/user.model";
+import { IUser, User } from "@common/models/user.model";
 import { UnauthorizedException } from "@common/types/response.type";
 import { LoginDto } from "@auth/dto/auth.dto";
-import { generateAccessToken } from "@common/utils/jwt.util";
+import { generateAccessToken, generateToken } from "@common/utils/jwt.util";
 import * as bcrypt from "bcrypt";
 import { generateRefreshToken } from "@common/utils/jwt.util";
 
@@ -22,14 +22,22 @@ export class AuthService {
       );
     }
 
+    return user;
+  }
+  async generateAuthTokens(user: IUser) {
     const accessToken = await generateAccessToken({
       userId: user._id.toString(),
       nickname: user.nickname,
       role: user.role,
     });
-
     const refreshToken = await generateRefreshToken(user._id.toString());
 
     return { accessToken, refreshToken };
+  }
+  async generateActivityToken(user: IUser, activity: string) {
+    return await generateToken({
+      userId: user._id.toString(),
+      activity,
+    });
   }
 }

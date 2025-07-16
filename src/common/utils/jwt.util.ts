@@ -9,6 +9,11 @@ interface TokenPayload {
   nickname: string;
   role: string;
 }
+export async function generateToken(payload: any) {
+  return jwt.sign(payload, env.AUTH.JWT_SECRET, {
+    expiresIn: "1m",
+  });
+}
 
 export async function generateAccessToken(
   payload: TokenPayload

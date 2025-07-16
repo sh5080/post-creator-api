@@ -13,7 +13,7 @@ import {
 } from "@common/utils/jwt.util";
 import { User, IUser } from "@common/models/user.model";
 import jwt from "jsonwebtoken";
-import { sendToken } from "@common/utils/token.util";
+import { sendAuthTokens } from "@common/utils/token.util";
 export const authMiddleware = async (
   req: AuthRequest,
   res: Response,
@@ -55,7 +55,7 @@ export const authMiddleware = async (
 
         // 이전 리프레시 토큰 폐기
         await revokeRefreshToken(refreshToken);
-        await sendToken(res, newAccessToken, newRefreshToken);
+        await sendAuthTokens(res, newAccessToken, newRefreshToken);
         req.user = {
           userId: user._id.toString(),
           nickname: user.nickname,
