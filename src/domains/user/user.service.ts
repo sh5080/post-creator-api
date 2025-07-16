@@ -26,9 +26,11 @@ export class UserService {
   }
 
   async updateNickname(userId: string, dto: UpdateNicknameDto) {
-    const user = await User.findByIdAndUpdate(userId, {
-      nickname: dto.nickname,
-    });
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { nickname: dto.nickname },
+      { new: true }
+    );
 
     if (!user) {
       throw new NotFoundException("존재하지 않는 유저입니다.");
