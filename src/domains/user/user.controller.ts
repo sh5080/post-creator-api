@@ -5,6 +5,8 @@ import {
   CreateUserResponseDto,
   updateNicknameValidator,
   UpdateNicknameResponseDto,
+  updatePasswordValidator,
+  UpdatePasswordResponseDto,
 } from "./dto/user.dto";
 import { AuthRequest } from "@common/types/request.type";
 import { AuthService } from "@auth/auth.service";
@@ -44,6 +46,28 @@ export class UserController {
       const user = await this.userService.updateNickname(userId, dto);
       const responseDto: UpdateNicknameResponseDto = {
         nickname: user.nickname,
+        updatedAt: user.updatedAt,
+      };
+      const { accessToken, refreshToken } =
+        await this.authService.generateAuthTokens(user);
+
+      await sendAuthTokens(res, accessToken, refreshToken);
+
+      res.status(200).json(responseDto);
+    } catch (error) {
+      next(error);
+    }
+  };
+  updatePassword = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const dto = updatePasswordValidator.validate(req.body);
+      const { userId } = req.user!;
+      const user = await this.userService.updatePassword(userId, dto);
+      const responseDto: UpdatePasswordResponseDto = {
         updatedAt: user.updatedAt,
       };
       const { accessToken, refreshToken } =

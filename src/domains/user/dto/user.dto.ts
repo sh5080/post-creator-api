@@ -52,3 +52,22 @@ export class UpdateNicknameValidator extends BaseValidator<UpdateNicknameDto> {
 }
 
 export const updateNicknameValidator = new UpdateNicknameValidator();
+
+export interface UpdatePasswordDto {
+  password: string;
+}
+
+export interface UpdatePasswordResponseDto {
+  updatedAt: Date;
+}
+
+export class UpdatePasswordValidator extends BaseValidator<UpdatePasswordDto> {
+  protected schema = Joi.object<UpdatePasswordDto>({
+    password: Joi.string().min(8).max(30).required().messages({
+      "string.min": "비밀번호는 최소 8자 이상이어야 합니다.",
+      "string.max": "비밀번호는 최대 30자 이하여야 합니다.",
+    }),
+  });
+}
+
+export const updatePasswordValidator = new UpdatePasswordValidator();

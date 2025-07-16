@@ -6,5 +6,6 @@ const userRouter: Router = Router();
 
 userRouter.post("/signup", userController.signup);
 userRouter.patch("/nickname", authMiddleware, userController.updateNickname);
+userRouter.patch("/password", authMiddleware, userController.updatePassword);
 
 export { userRouter };

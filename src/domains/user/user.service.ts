@@ -3,7 +3,11 @@ import {
   NotFoundException,
 } from "@common/types/response.type";
 import { User, USER_ROLE } from "@common/models/user.model";
-import { CreateUserDto, UpdateNicknameDto } from "./dto/user.dto";
+import {
+  CreateUserDto,
+  UpdateNicknameDto,
+  UpdatePasswordDto,
+} from "./dto/user.dto";
 import * as bcrypt from "bcrypt";
 
 export class UserService {
@@ -31,11 +35,21 @@ export class UserService {
       { nickname: dto.nickname },
       { new: true }
     );
-
     if (!user) {
       throw new NotFoundException("존재하지 않는 유저입니다.");
     }
-
+    return user;
+  }
+  async updatePassword(userId: string, dto: UpdatePasswordDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword },
+      { new: true }
+    );
+    if (!user) {
+      throw new NotFoundException("존재하지 않는 유저입니다.");
+    }
     return user;
   }
 }
