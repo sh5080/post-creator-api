@@ -1,3 +1,4 @@
+import "module-alias/register";
 import { addAliases } from "module-alias";
 
 // 환경에 따른 경로 설정
@@ -29,8 +30,9 @@ async function startServer() {
     app.use(express.urlencoded({ extended: true }));
     app.use(
       cors({
-        origin: env.SERVER.FRONT_URL,
+        origin: [env.SERVER.FRONT_URL, "http://localhost:5173"],
         credentials: true,
+        exposedHeaders: ["Authorization", "refreshToken", "X-A-Token"],
       })
     );
 
