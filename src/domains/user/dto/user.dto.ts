@@ -31,3 +31,24 @@ export interface CreateUserResponseDto {
   email: string;
   createdAt: Date;
 }
+
+export interface UpdateNicknameDto {
+  nickname: string;
+}
+
+export interface UpdateNicknameResponseDto {
+  nickname: string;
+  updatedAt: Date;
+}
+
+export class UpdateNicknameValidator extends BaseValidator<UpdateNicknameDto> {
+  protected schema = Joi.object<UpdateNicknameDto>({
+    nickname: Joi.string().min(2).max(10).required().messages({
+      "string.min": "닉네임은 최소 2자 이상이어야 합니다.",
+      "string.max": "닉네임은 최대 10자 이하여야 합니다.",
+      "any.required": "닉네임은 필수 입력 항목입니다.",
+    }),
+  });
+}
+
+export const updateNicknameValidator = new UpdateNicknameValidator();

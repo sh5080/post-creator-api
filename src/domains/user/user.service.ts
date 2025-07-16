@@ -1,6 +1,9 @@
-import { BadRequestException } from "@common/types/response.type";
+import {
+  BadRequestException,
+  NotFoundException,
+} from "@common/types/response.type";
 import { User, USER_ROLE } from "@common/models/user.model";
-import { CreateUserDto } from "./dto/user.dto";
+import { CreateUserDto, UpdateNicknameDto } from "./dto/user.dto";
 import * as bcrypt from "bcrypt";
 
 export class UserService {
@@ -19,6 +22,18 @@ export class UserService {
     });
 
     await user.save();
+    return user;
+  }
+
+  async updateNickname(userId: string, dto: UpdateNicknameDto) {
+    const user = await User.findByIdAndUpdate(userId, {
+      nickname: dto.nickname,
+    });
+
+    if (!user) {
+      throw new NotFoundException("존재하지 않는 유저입니다.");
+    }
+
     return user;
   }
 }
