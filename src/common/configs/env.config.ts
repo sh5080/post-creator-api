@@ -9,7 +9,7 @@ const rawEnv = {
   SERVER: {
     PORT: process.env.PORT!,
     FRONT_URL: process.env.FRONT_URL!,
-    MONGODB_URI: process.env.MONGODB_URI!,
+    DB_URL: process.env.DB_URL!,
   },
   GEMINI: {
     API_KEY: process.env.GEMINI_API_KEY!,

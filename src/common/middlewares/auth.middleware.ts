@@ -1,9 +1,6 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "@common/types/request.type";
-import {
-  ForbiddenException,
-  UnauthorizedException,
-} from "@common/types/response.type";
+import { UnauthorizedException } from "@nestjs/common";
 import {
   verifyAccessToken,
   verifyRefreshToken,
@@ -11,12 +8,14 @@ import {
   generateRefreshToken,
   revokeRefreshToken,
 } from "@common/utils/jwt.util";
-import { User, IUser } from "@common/models/user.model";
 import jwt from "jsonwebtoken";
 import { sendAuthTokens } from "@common/utils/token.util";
+import { UserRepository } from "@user/user.repository";
+import { FastifyReply } from "fastify";
+const userRepository = new UserRepository();
 export const authMiddleware = async (
   req: AuthRequest,
-  res: Response,
+  res: FastifyReply,
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
@@ -40,26 +39,24 @@ export const authMiddleware = async (
         }
 
         // 사용자 정보 조회
-        const user = (await User.findById(userId)) as IUser;
+        const user = await userRepository.findById(userId);
         if (!user) {
           throw new UnauthorizedException("사용자를 찾을 수 없습니다.");
         }
 
         // RTR: 새로운 토큰 쌍 발급
         const newAccessToken = await generateAccessToken({
-          userId: user._id.toString(),
+          userId: user.id,
           nickname: user.nickname,
-          role: user.role,
         });
-        const newRefreshToken = await generateRefreshToken(user._id.toString());
+        const newRefreshToken = await generateRefreshToken(user.id);
 
         // 이전 리프레시 토큰 폐기
         await revokeRefreshToken(refreshToken);
         await sendAuthTokens(res, newAccessToken, newRefreshToken);
         req.user = {
-          userId: user._id.toString(),
+          userId: user.id,
           nickname: user.nickname,
-          role: user.role,
         };
 
         next();
@@ -92,15 +89,14 @@ export const validateRefreshToken = async (
       throw new UnauthorizedException("유효하지 않은 리프레시 토큰입니다.");
     }
 
-    const user = (await User.findById(userId)) as IUser;
+    const user = await userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException("사용자를 찾을 수 없습니다.");
     }
 
     req.user = {
-      userId: user._id.toString(),
+      userId: user.id,
       nickname: user.nickname,
-      role: user.role,
     };
 
     next();
