@@ -1,7 +1,7 @@
 export interface ServerEnv {
   PORT: string;
   FRONT_URL: string;
-  MONGODB_URI: string;
+  DB_URL: string;
 }
 
 export interface GeminiEnv {

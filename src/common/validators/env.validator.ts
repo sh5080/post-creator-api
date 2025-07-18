@@ -15,10 +15,10 @@ const envSchema = Joi.object<AppEnv>({
       "string.uri": "SERVER.FRONT_URL은 유효한 URL이어야 합니다.",
       "any.required": "SERVER.FRONT_URL은 필수입니다.",
     }),
-    MONGODB_URI: Joi.string().uri().required().messages({
-      "string.base": "SERVER.MONGODB_URI은 문자열이어야 합니다.",
-      "string.uri": "SERVER.MONGODB_URI은 유효한 URL이어야 합니다.",
-      "any.required": "SERVER.MONGODB_URI은 필수입니다.",
+    DB_URL: Joi.string().uri().required().messages({
+      "string.base": "SERVER.DB_URL은 문자열이어야 합니다.",
+      "string.uri": "SERVER.DB_URL은 유효한 URL이어야 합니다.",
+      "any.required": "SERVER.DB_URL은 필수입니다.",
     }),
   }).required(),
   GEMINI: Joi.object<GeminiEnv>({
@@ -37,6 +37,12 @@ const envSchema = Joi.object<AppEnv>({
     }),
     SALT: Joi.string().required().messages({
       "any.required": "AUTH.SALT는 필수입니다.",
+    }),
+    ACCESS_TOKEN_EXPIRES_IN: Joi.string().required().messages({
+      "any.required": "AUTH.ACCESS_TOKEN_EXPIRES_IN은 필수입니다.",
+    }),
+    REFRESH_TOKEN_EXPIRES_IN: Joi.string().required().messages({
+      "any.required": "AUTH.REFRESH_TOKEN_EXPIRES_IN은 필수입니다.",
     }),
   }).required(),
 }).unknown(true); // 알 수 없는 키를 허용하려면 false로 변경 (여기서는 env.ts에 정의된 것만 검사)

@@ -2,12 +2,12 @@ import { env } from "@common/configs/env.config";
 import jwt from "jsonwebtoken";
 import { StringValue } from "ms";
 import { RefreshToken } from "@common/models/refreshToken.model";
-import { Types } from "mongoose";
+import { db } from "@common/configs/database.config";
+import { eq, and } from "drizzle-orm";
 
 interface TokenPayload {
   userId: string;
   nickname: string;
-  role: string;
 }
 export async function generateToken(payload: any) {
   return jwt.sign(payload, env.AUTH.JWT_SECRET, {
@@ -29,16 +29,16 @@ export async function generateRefreshToken(userId: string): Promise<string> {
   });
 
   // RTR: 기존 리프레시 토큰 폐기
-  await RefreshToken.updateMany(
-    { userId: new Types.ObjectId(userId), isRevoked: false },
-    { isRevoked: true }
-  );
+  await db
+    .update(RefreshToken)
+    .set({ isRevoked: true })
+    .where(eq(RefreshToken.userId, userId));
 
   // 새로운 리프레시 토큰 저장
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 14); // 14일 후 만료
 
-  await RefreshToken.create({
+  await db.insert(RefreshToken).values({
     userId,
     token,
     expiresAt,
@@ -62,10 +62,12 @@ export async function verifyRefreshToken(
     };
 
     // DB에서 리프레시 토큰 확인
-    const refreshToken = await RefreshToken.findOne({
-      token,
-      isRevoked: false,
-    });
+    const refreshToken = await db
+      .select()
+      .from(RefreshToken)
+      .where(
+        and(eq(RefreshToken.token, token), eq(RefreshToken.isRevoked, false))
+      );
 
     if (!refreshToken) {
       return null;
@@ -78,5 +80,8 @@ export async function verifyRefreshToken(
 }
 
 export async function revokeRefreshToken(token: string): Promise<void> {
-  await RefreshToken.updateOne({ token }, { isRevoked: true });
+  await db
+    .update(RefreshToken)
+    .set({ isRevoked: true })
+    .where(eq(RefreshToken.token, token));
 }

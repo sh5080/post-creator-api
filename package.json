@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "NODE_ENV=development nest start --watch",
-    "start": "NODE_ENV=production nest start",
+    "start": "NODE_ENV=production node dist/main.js",
     "db:generate": "ts-node -r dotenv/config src/common/database/run-drizzle.ts generate",
     "db:push": "ts-node -r dotenv/config src/common/database/run-drizzle.ts push",
     "db:pull": "ts-node -r dotenv/config src/common/database/run-drizzle.ts pull",

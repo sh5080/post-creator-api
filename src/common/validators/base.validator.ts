@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { BadRequestException } from "@common/types/response.type";
+import { BadRequestException } from "@nestjs/common";
 
 export abstract class BaseValidator<T> {
   protected abstract schema: Joi.ObjectSchema<T>;

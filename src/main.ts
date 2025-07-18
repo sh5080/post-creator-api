@@ -1,4 +1,4 @@
-// import "module-alias/register";
+import "module-alias/register";
 
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
@@ -15,8 +15,11 @@ async function bootstrap() {
   });
   // app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(process.env.PORT || 3000);
-  console.log(`Server listening on port ${process.env.PORT || 3000}`);
+  const port = process.env.PORT || 3000;
+  const host = "0.0.0.0";
+
+  await app.listen(port, host);
+  console.log(`Server listening on ${host}:${port}`);
 }
 
 bootstrap();
