@@ -1,13 +1,16 @@
-import { IUser, User } from "@common/models/user.model";
-import { UnauthorizedException } from "@common/types/response.type";
+import { User } from "@common/models/user.model";
 import { LoginDto } from "@auth/dto/auth.dto";
 import { generateAccessToken, generateToken } from "@common/utils/jwt.util";
 import * as bcrypt from "bcrypt";
 import { generateRefreshToken } from "@common/utils/jwt.util";
+import { UserRepository } from "@user/user.repository";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 
+@Injectable()
 export class AuthService {
+  constructor(private readonly userRepository: UserRepository) {}
   async validate(dto: LoginDto) {
-    const user = await User.findOne({ email: dto.email });
+    const user = await this.userRepository.findByEmail(dto.email);
 
     if (!user) {
       throw new UnauthorizedException(
@@ -24,19 +27,21 @@ export class AuthService {
 
     return user;
   }
-  async generateAuthTokens(user: IUser) {
+  async generateAuthTokens(user: typeof User.$inferSelect) {
     const accessToken = await generateAccessToken({
-      userId: user._id.toString(),
+      userId: user.id,
       nickname: user.nickname,
-      role: user.role,
     });
-    const refreshToken = await generateRefreshToken(user._id.toString());
+    const refreshToken = await generateRefreshToken(user.id);
 
     return { accessToken, refreshToken };
   }
-  async generateActivityToken(user: IUser, activity: string) {
+  async generateActivityToken(
+    user: typeof User.$inferSelect,
+    activity: string
+  ) {
     return await generateToken({
-      userId: user._id.toString(),
+      userId: user.id,
       activity,
     });
   }
