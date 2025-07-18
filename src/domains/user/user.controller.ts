@@ -1,83 +1,91 @@
-import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
 import {
   createUserValidator,
-  CreateUserResponseDto,
   updateNicknameValidator,
   UpdateNicknameResponseDto,
   updatePasswordValidator,
   UpdatePasswordResponseDto,
+  CreateUserDto,
 } from "./dto/user.dto";
 import { AuthRequest } from "@common/types/request.type";
 import { AuthService } from "@auth/auth.service";
-import { sendAuthTokens } from "@common/utils/token.util";
+import {
+  Controller,
+  Post,
+  Req,
+  Body,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
+import { AuthGuard } from "@common/guards/auth.guard";
+import { TokenInterceptor } from "@common/interceptors/token.interceptor";
 
+@Controller("api/users")
 export class UserController {
-  private userService: UserService;
-  private authService: AuthService;
-  constructor() {
-    this.userService = new UserService();
-    this.authService = new AuthService();
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService
+  ) {}
+
+  @Post("signup")
+  async signup(@Body() body: CreateUserDto) {
+    const dto = createUserValidator.validate(body);
+    const user = await this.userService.createUser(dto);
+
+    return {
+      email: user.email,
+      createdAt: user.createdAt,
+    };
   }
 
-  signup = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const dto = createUserValidator.validate(req.body);
-      const user = await this.userService.createUser(dto);
+  @Post("update-nickname")
+  @UseGuards(AuthGuard)
+  @UseInterceptors(TokenInterceptor)
+  async updateNickname(@Req() req: AuthRequest, @Body() body: any) {
+    const dto = updateNicknameValidator.validate(body);
+    const { userId } = req.user!;
+    const user = await this.userService.updateNickname(userId, dto);
 
-      const responseDto: CreateUserResponseDto = {
-        email: user.email,
-        createdAt: user.createdAt,
-      };
+    // 새로운 토큰 생성
+    const { accessToken, refreshToken } =
+      await this.authService.generateAuthTokens(user);
 
-      res.status(201).json(responseDto);
-    } catch (error) {
-      next(error);
-    }
-  };
-  updateNickname = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const dto = updateNicknameValidator.validate(req.body);
-      const { userId } = req.user!;
-      const user = await this.userService.updateNickname(userId, dto);
-      const responseDto: UpdateNicknameResponseDto = {
-        nickname: user.nickname,
-        updatedAt: user.updatedAt,
-      };
-      const { accessToken, refreshToken } =
-        await this.authService.generateAuthTokens(user);
+    const responseDto: UpdateNicknameResponseDto = {
+      nickname: user.nickname,
+      updatedAt: user.updatedAt,
+    };
 
-      await sendAuthTokens(res, accessToken, refreshToken);
+    req.user!.tokens = { accessToken, refreshToken };
 
-      res.status(200).json(responseDto);
-    } catch (error) {
-      next(error);
-    }
-  };
-  updatePassword = async (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const dto = updatePasswordValidator.validate(req.body);
-      const { userId } = req.user!;
-      const user = await this.userService.updatePassword(userId, dto);
-      const responseDto: UpdatePasswordResponseDto = {
-        updatedAt: user.updatedAt,
-      };
-      const { accessToken, refreshToken } =
-        await this.authService.generateAuthTokens(user);
+    return responseDto;
+  }
 
-      await sendAuthTokens(res, accessToken, refreshToken);
+  @Post("update-password")
+  @UseGuards(AuthGuard)
+  @UseInterceptors(TokenInterceptor)
+  async updatePassword(@Req() req: AuthRequest, @Body() body: any) {
+    const dto = updatePasswordValidator.validate(body);
+    const { userId } = req.user!;
+    const user = await this.userService.updatePassword(userId, dto);
 
-      res.status(200).json(responseDto);
-    } catch (error) {
-      next(error);
-    }
-  };
+    // 새로운 토큰 생성
+    const { accessToken, refreshToken } =
+      await this.authService.generateAuthTokens(user);
+
+    const responseDto: UpdatePasswordResponseDto = {
+      updatedAt: user.updatedAt,
+    };
+
+    req.user!.tokens = { accessToken, refreshToken };
+    return responseDto;
+  }
+
+  @Post("delete")
+  @UseGuards(AuthGuard)
+  async deleteUser(@Req() req: AuthRequest) {
+    const { userId } = req.user!;
+    await this.userService.deleteUser(userId);
+
+    return { message: "사용자가 성공적으로 삭제되었습니다." };
+  }
 }

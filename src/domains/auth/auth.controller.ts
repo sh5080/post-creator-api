@@ -1,43 +1,58 @@
-import { Request, Response, NextFunction } from "express";
 import { AuthService } from "@auth/auth.service";
-import { activityValidator, authValidator } from "@auth/dto/auth.dto";
-import { sendActivityToken, sendAuthTokens } from "@common/utils/token.util";
+import { activityValidator, authValidator, LoginDto } from "@auth/dto/auth.dto";
+import {
+  Controller,
+  Post,
+  UseGuards,
+  UnauthorizedException,
+  Body,
+  Req,
+  Query,
+  UseInterceptors,
+} from "@nestjs/common";
+import { AuthGuard } from "@common/guards/auth.guard";
+import { AuthRequest } from "@common/types/request.type";
+import { TokenInterceptor } from "@common/interceptors/token.interceptor";
 
+@Controller("api/auth")
 export class AuthController {
-  private authService: AuthService;
+  constructor(private readonly authService: AuthService) {}
 
-  constructor() {
-    this.authService = new AuthService();
+  @Post("login")
+  @UseInterceptors(TokenInterceptor)
+  async login(@Body() body: LoginDto, @Req() req: any) {
+    console.log(body);
+    const dto = authValidator.validate(body);
+
+    const user = await this.authService.validate(dto);
+    const { accessToken, refreshToken } =
+      await this.authService.generateAuthTokens(user);
+
+    req.tokens = { accessToken, refreshToken };
+
+    return { message: "로그인 성공" };
   }
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
-    const dto = authValidator.validate(req.body);
-    try {
-      const user = await this.authService.validate(dto);
-      const { accessToken, refreshToken } =
-        await this.authService.generateAuthTokens(user);
+  @Post("check")
+  @UseGuards(AuthGuard)
+  @UseInterceptors(TokenInterceptor)
+  async checkAuth(@Req() req: any, @Body() body: any, @Query() query: any) {
+    const { userId } = req.user!;
+    const dto = authValidator.validate(body);
+    const activityDto = activityValidator.validate(query);
 
-      await sendAuthTokens(res, accessToken, refreshToken);
-      res.json({ message: "로그인 성공" });
-    } catch (error) {
-      next(error);
+    const user = await this.authService.validate(dto);
+    if (user.id !== userId) {
+      throw new UnauthorizedException("인증 실패");
     }
-  };
 
-  checkAuth = async (req: Request, res: Response, next: NextFunction) => {
-    const dto = authValidator.validate(req.body);
-    const activityDto = activityValidator.validate(req.query);
-    try {
-      const user = await this.authService.validate(dto);
-      const token = await this.authService.generateActivityToken(
-        user,
-        activityDto.activity
-      );
+    const token = await this.authService.generateActivityToken(
+      user,
+      activityDto.activity
+    );
 
-      await sendActivityToken(res, token);
-      res.json({ message: "인증 성공" });
-    } catch (error) {
-      next(error);
-    }
-  };
+    req.activityToken = token;
+
+    return { message: "인증 성공" };
+  }
 }
