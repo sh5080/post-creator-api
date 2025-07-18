@@ -1,14 +1,41 @@
 import Joi from "joi";
 import { BaseValidator } from "@common/validators/base.validator";
+import { POST_CATEGORY } from "@common/models/post.model";
+import { PaginationQuery } from "@common/types/request.type";
 
+// Post 관련 DTO
 export interface CreatePostDto {
+  title: string;
+  postCategory: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
   clientRequestPrompt: string;
   keywords: string[];
   keywordCount: number;
 }
 
+// Template 관련 DTO
+export interface CreateTemplateDto {
+  name: string;
+  content: string;
+  category: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
+  isPublic: boolean;
+}
+
+export interface GetPublicTemplatesDto extends PaginationQuery {
+  category?: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
+  sort?: "latest" | "popular";
+}
+
+// Post Validator
 export class CreatePostValidator extends BaseValidator<CreatePostDto> {
   protected schema = Joi.object<CreatePostDto>({
+    title: Joi.string().min(1).max(100).required().messages({
+      "string.min": "제목은 최소 1자 이상이어야 합니다.",
+      "string.max": "제목은 최대 100자 이하여야 합니다.",
+      "any.required": "제목은 필수입니다.",
+    }),
+    postCategory: Joi.string()
+      .valid(...Object.values(POST_CATEGORY))
+      .optional(),
     clientRequestPrompt: Joi.string().min(10).max(1000).required().messages({
       "string.min": "요청사항 프롬프트는 최소 10자 이상이어야 합니다.",
       "string.max": "요청사항 프롬프트는 최대 1000자 이하여야 합니다.",
@@ -40,4 +67,55 @@ export class CreatePostValidator extends BaseValidator<CreatePostDto> {
   });
 }
 
+// Template Validator
+export class CreateTemplateValidator extends BaseValidator<CreateTemplateDto> {
+  protected schema = Joi.object<CreateTemplateDto>({
+    name: Joi.string().min(1).max(100).required().messages({
+      "string.min": "템플릿 이름은 최소 1자 이상이어야 합니다.",
+      "string.max": "템플릿 이름은 최대 100자 이하여야 합니다.",
+      "any.required": "템플릿 이름은 필수입니다.",
+    }),
+    content: Joi.string().min(10).max(5000).required().messages({
+      "string.min": "템플릿 내용은 최소 10자 이상이어야 합니다.",
+      "string.max": "템플릿 내용은 최대 5000자 이하여야 합니다.",
+      "any.required": "템플릿 내용은 필수입니다.",
+    }),
+    category: Joi.string()
+      .valid(...Object.values(POST_CATEGORY))
+      .required()
+      .messages({
+        "any.required": "카테고리는 필수입니다.",
+        "any.only": "유효하지 않은 카테고리입니다.",
+      }),
+    isPublic: Joi.boolean().default(false),
+  });
+}
+
+export class GetPublicTemplatesValidator extends BaseValidator<GetPublicTemplatesDto> {
+  protected schema = Joi.object<GetPublicTemplatesDto>({
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(10),
+    category: Joi.string()
+      .valid(...Object.values(POST_CATEGORY))
+      .optional(),
+    sort: Joi.string().valid("latest", "popular").default("latest"),
+  });
+}
+
 export const createPostValidator = new CreatePostValidator();
+export const createTemplateValidator = new CreateTemplateValidator();
+export const getPublicTemplatesValidator = new GetPublicTemplatesValidator();
+
+export interface IPostTemplateResponse {
+  name: string;
+  content: string;
+  category: string;
+  author: {
+    id: string;
+    nickname: string;
+  };
+  isPublic: boolean;
+  favoriteCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
