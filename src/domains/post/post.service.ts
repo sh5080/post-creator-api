@@ -5,9 +5,12 @@ import {
   CreatePostDto,
   CreateTemplateDto,
   GetPublicTemplatesDto,
+  GetMyTemplatesDto,
+  GetMyFavoriteTemplatesDto,
 } from "./dto/post.dto";
 import { PostRepository } from "./post.repository";
 import { Injectable } from "@nestjs/common";
+import { createPaginationResponse } from "@common/utils/pagination.util";
 
 @Injectable()
 export class PostService {
@@ -48,26 +51,24 @@ export class PostService {
 
   async getPublicTemplates(dto: GetPublicTemplatesDto) {
     const templates = await this.postRepository.findPublicTemplates(dto);
-
-    const { page = 1, limit = 10 } = dto;
-    return {
-      items: templates,
-      pagination: {
-        total: templates.length,
-        page,
-        totalPages: Math.ceil(templates.length / limit),
-      },
-    };
+    return createPaginationResponse(templates, dto);
   }
 
   // 내가 생성한 템플릿 조회
-  async getTemplatesByCreator(userId: string) {
-    return await this.postRepository.findTemplatesByUserId(userId);
+  async getMyTemplates(userId: string, dto: GetMyTemplatesDto) {
+    const templates = await this.postRepository.findTemplatesByUserId(
+      userId,
+      dto
+    );
+    return createPaginationResponse(templates, dto);
   }
 
   // 즐겨찾기한 템플릿 조회
-  async getFavoriteTemplates(userId: string) {
-    const user = await this.postRepository.findFavoriteTemplatesById(userId);
-    return user;
+  async getFavoriteTemplates(userId: string, dto: GetMyFavoriteTemplatesDto) {
+    const templates = await this.postRepository.findFavoriteTemplatesById(
+      userId,
+      dto
+    );
+    return createPaginationResponse(templates, dto);
   }
 }
