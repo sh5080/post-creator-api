@@ -1,9 +1,11 @@
 import { db } from "@common/configs/database.config";
 import { Post, POST_CATEGORY } from "@common/models/post.model";
 import { PostTemplate } from "@common/models/postTemplate.model";
+import { User } from "@common/models/user.model";
 import { and, eq, desc } from "drizzle-orm";
 import { CreateTemplateDto, GetPublicTemplatesDto } from "./dto/post.dto";
 import { TemplateFavorite } from "@common/models/templateFavorite.model";
+import { postTemplateQuery } from "./post.query";
 
 export class PostRepository {
   async findById(postId: string) {
@@ -24,7 +26,6 @@ export class PostRepository {
   }
 
   async createTemplate(userId: string, dto: CreateTemplateDto) {
-    console.log("dto:::@:@:@:@:@: ", dto);
     return (
       await db
         .insert(PostTemplate)
@@ -43,8 +44,9 @@ export class PostRepository {
     }
 
     const query = db
-      .select()
+      .select(postTemplateQuery.selectTemplates)
       .from(PostTemplate)
+      .innerJoin(User, eq(PostTemplate.authorId, User.id))
       .where(and(...conditions));
 
     if (sort === "latest") {
@@ -54,17 +56,32 @@ export class PostRepository {
     return await query;
   }
 
-  async findTemplatesByUserId(userId: string) {
-    return await db
-      .select()
+  async findTemplatesByUserId(userId: string, dto?: { sort?: string }) {
+    const query = db
+      .select(postTemplateQuery.selectTemplates)
       .from(PostTemplate)
+      .innerJoin(User, eq(PostTemplate.authorId, User.id))
       .where(eq(PostTemplate.authorId, userId));
+
+    if (dto?.sort === "latest") {
+      return await query.orderBy(desc(PostTemplate.createdAt));
+    }
+
+    return await query;
   }
 
-  async findFavoriteTemplatesById(userId: string) {
-    return await db
-      .select()
+  async findFavoriteTemplatesById(userId: string, dto?: { sort?: string }) {
+    const query = db
+      .select(postTemplateQuery.selectTemplates)
       .from(TemplateFavorite)
+      .innerJoin(PostTemplate, eq(TemplateFavorite.templateId, PostTemplate.id))
+      .innerJoin(User, eq(PostTemplate.authorId, User.id))
       .where(eq(TemplateFavorite.userId, userId));
+
+    if (dto?.sort === "latest") {
+      return await query.orderBy(desc(PostTemplate.createdAt));
+    }
+
+    return await query;
   }
 }
