@@ -2,6 +2,10 @@ import Joi from "joi";
 import { BaseValidator } from "@common/validators/base.validator";
 import { POST_CATEGORY } from "@common/models/post.model";
 import { PaginationQuery } from "@common/types/request.type";
+import {
+  commonPaginationSchema,
+  PaginationValidator,
+} from "@common/validators/pagination.validator";
 
 // Post 관련 DTO
 export interface CreatePostDto {
@@ -20,8 +24,19 @@ export interface CreateTemplateDto {
   isPublic: boolean;
 }
 
+// 페이지네이션을 포함한 템플릿 조회 DTO
 export interface GetPublicTemplatesDto extends PaginationQuery {
   category?: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
+  sort?: "latest" | "popular";
+}
+
+// 내가 생성한 템플릿 조회 DTO
+export interface GetMyTemplatesDto extends PaginationQuery {
+  sort?: "latest" | "popular";
+}
+
+// 내가 즐겨찾기한 템플릿 조회 DTO
+export interface GetMyFavoriteTemplatesDto extends PaginationQuery {
   sort?: "latest" | "popular";
 }
 
@@ -91,31 +106,34 @@ export class CreateTemplateValidator extends BaseValidator<CreateTemplateDto> {
   });
 }
 
-export class GetPublicTemplatesValidator extends BaseValidator<GetPublicTemplatesDto> {
+// GetPublicTemplates Validator
+export class GetPublicTemplatesValidator extends PaginationValidator {
   protected schema = Joi.object<GetPublicTemplatesDto>({
-    page: Joi.number().integer().min(1).default(1),
-    limit: Joi.number().integer().min(1).max(100).default(10),
+    ...commonPaginationSchema,
     category: Joi.string()
       .valid(...Object.values(POST_CATEGORY))
-      .optional(),
-    sort: Joi.string().valid("latest", "popular").default("latest"),
+      .optional()
+      .messages({
+        "any.only": "유효하지 않은 카테고리입니다.",
+      }),
   });
+}
+
+// GetMyTemplates Validator
+export class GetMyTemplatesValidator extends PaginationValidator {
+  protected schema = Joi.object<GetMyTemplatesDto>(commonPaginationSchema);
+}
+
+// GetMyFavoriteTemplates Validator
+export class GetMyFavoriteTemplatesValidator extends PaginationValidator {
+  protected schema = Joi.object<GetMyFavoriteTemplatesDto>(
+    commonPaginationSchema
+  );
 }
 
 export const createPostValidator = new CreatePostValidator();
 export const createTemplateValidator = new CreateTemplateValidator();
 export const getPublicTemplatesValidator = new GetPublicTemplatesValidator();
-
-export interface IPostTemplateResponse {
-  name: string;
-  content: string;
-  category: string;
-  author: {
-    id: string;
-    nickname: string;
-  };
-  isPublic: boolean;
-  favoriteCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export const getMyTemplatesValidator = new GetMyTemplatesValidator();
+export const getMyFavoriteTemplatesValidator =
+  new GetMyFavoriteTemplatesValidator();

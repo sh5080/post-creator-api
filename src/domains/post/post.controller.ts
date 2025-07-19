@@ -6,6 +6,10 @@ import {
   createTemplateValidator,
   GetPublicTemplatesDto,
   getPublicTemplatesValidator,
+  GetMyTemplatesDto,
+  getMyTemplatesValidator,
+  GetMyFavoriteTemplatesDto,
+  getMyFavoriteTemplatesValidator,
 } from "./dto/post.dto";
 import { PostService } from "./post.service";
 import { processImageBuffer } from "@common/utils/image.util";
@@ -87,33 +91,37 @@ export class PostController {
   ) {
     const { userId } = req.user!;
     const dto = createTemplateValidator.validate(body);
-    const template = await this.postService.createTemplate(userId, dto);
-    return template;
+    return await this.postService.createTemplate(userId, dto);
   }
 
   // 전체 공개 템플릿 조회
   @Get("templates")
   async getPublicTemplates(@Query() query: GetPublicTemplatesDto) {
     const dto = getPublicTemplatesValidator.validate(query);
-    const templates = await this.postService.getPublicTemplates(dto);
-    return templates;
+    return await this.postService.getPublicTemplates(dto);
   }
 
   // 내가 생성한 템플릿 조회
   @Get("templates/my")
   @UseGuards(AuthGuard)
-  async getMyTemplates(@Req() req: AuthRequest) {
+  async getMyTemplates(
+    @Req() req: AuthRequest,
+    @Query() query: GetMyTemplatesDto
+  ) {
     const { userId } = req.user!;
-    const templates = await this.postService.getTemplatesByCreator(userId);
-    return templates;
+    const dto = getMyTemplatesValidator.validate(query);
+    return await this.postService.getMyTemplates(userId, dto);
   }
 
   // 즐겨찾기한 템플릿 조회
-  @Get("templates/favorite")
+  @Get("templates/my/favorites")
   @UseGuards(AuthGuard)
-  async getFavoriteTemplates(@Req() req: AuthRequest) {
+  async getMyFavoriteTemplates(
+    @Req() req: AuthRequest,
+    @Query() query: GetMyFavoriteTemplatesDto
+  ) {
     const { userId } = req.user!;
-    const templates = await this.postService.getFavoriteTemplates(userId);
-    return templates;
+    const dto = getMyFavoriteTemplatesValidator.validate(query);
+    return await this.postService.getFavoriteTemplates(userId, dto);
   }
 }
