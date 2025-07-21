@@ -16,6 +16,6 @@ RUN yarn build
 
 # 프로덕션 의존성만 유지하고 개발 의존성 제거
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean
-
+ENV NODE_ENV=production
 # Cloud Run은 PORT 환경변수를 사용
 CMD ["node", "dist/main.js"]
