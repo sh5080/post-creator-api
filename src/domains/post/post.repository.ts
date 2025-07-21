@@ -84,4 +84,10 @@ export class PostRepository {
 
     return await query;
   }
+
+  async deleteTemplate(userId: string, id: string) {
+    return await db
+      .delete(PostTemplate)
+      .where(and(eq(PostTemplate.id, id), eq(PostTemplate.authorId, userId)));
+  }
 }

@@ -10,6 +10,7 @@ import {
   getMyTemplatesValidator,
   GetMyFavoriteTemplatesDto,
   getMyFavoriteTemplatesValidator,
+  deleteTemplateValidator,
 } from "./dto/post.dto";
 import { PostService } from "./post.service";
 import { processImageBuffer } from "@common/utils/image.util";
@@ -25,6 +26,8 @@ import {
   Req,
   BadRequestException,
   Query,
+  Delete,
+  Param,
 } from "@nestjs/common";
 import { AuthGuard } from "@common/guards/auth.guard";
 
@@ -123,5 +126,14 @@ export class PostController {
     const { userId } = req.user!;
     const dto = getMyFavoriteTemplatesValidator.validate(query);
     return await this.postService.getFavoriteTemplates(userId, dto);
+  }
+
+  // 템플릿 삭제
+  @Delete("templates/:id")
+  @UseGuards(AuthGuard)
+  async deleteTemplate(@Param("id") id: string, @Req() req: AuthRequest) {
+    const { userId } = req.user!;
+    const dto = deleteTemplateValidator.validate({ id });
+    return await this.postService.deleteTemplate(userId, dto.id);
   }
 }

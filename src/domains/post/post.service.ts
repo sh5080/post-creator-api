@@ -9,7 +9,7 @@ import {
   GetMyFavoriteTemplatesDto,
 } from "./dto/post.dto";
 import { PostRepository } from "./post.repository";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { createPaginationResponse } from "@common/utils/pagination.util";
 
 @Injectable()
@@ -70,5 +70,16 @@ export class PostService {
       dto
     );
     return createPaginationResponse(templates, dto);
+  }
+
+  async deleteTemplate(userId: string, id: string) {
+    const deletedTemplate = await this.postRepository.deleteTemplate(
+      userId,
+      id
+    );
+    if (deletedTemplate.rowCount === 0) {
+      throw new NotFoundException("삭제할 템플릿이 존재하지 않습니다.");
+    }
+    return deletedTemplate;
   }
 }

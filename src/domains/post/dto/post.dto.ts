@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { BaseValidator } from "@common/validators/base.validator";
+import { BaseValidator, idSchema } from "@common/validators/base.validator";
 import { POST_CATEGORY } from "@common/models/post.model";
 import { PaginationQuery } from "@common/types/request.type";
 import {
@@ -38,6 +38,11 @@ export interface GetMyTemplatesDto extends PaginationQuery {
 // 내가 즐겨찾기한 템플릿 조회 DTO
 export interface GetMyFavoriteTemplatesDto extends PaginationQuery {
   sort?: "latest" | "popular";
+}
+
+// DeleteTemplate DTO
+export interface DeleteTemplateDto {
+  id: string;
 }
 
 // Post Validator
@@ -131,9 +136,15 @@ export class GetMyFavoriteTemplatesValidator extends PaginationValidator {
   );
 }
 
+// DeleteTemplate Validator
+export class DeleteTemplateValidator extends BaseValidator<DeleteTemplateDto> {
+  protected schema = Joi.object<DeleteTemplateDto>(idSchema);
+}
+
 export const createPostValidator = new CreatePostValidator();
 export const createTemplateValidator = new CreateTemplateValidator();
 export const getPublicTemplatesValidator = new GetPublicTemplatesValidator();
 export const getMyTemplatesValidator = new GetMyTemplatesValidator();
 export const getMyFavoriteTemplatesValidator =
   new GetMyFavoriteTemplatesValidator();
+export const deleteTemplateValidator = new DeleteTemplateValidator();
