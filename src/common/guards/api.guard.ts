@@ -12,7 +12,7 @@ import { verifyAccessToken } from "@common/utils/jwt.util";
 export class ApiGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthRequest>();
-    const apiHeader = request.headers["X-A-Token"];
+    const apiHeader = request.headers["x-a-token"];
     if (!apiHeader) {
       throw new UnauthorizedException("인증 토큰이 필요합니다.");
     }
