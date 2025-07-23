@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, uuid, text } from "drizzle-orm/pg-core";
 import { User } from "./user.model";
 
 export const POST_CATEGORY = {
@@ -17,6 +17,7 @@ export const Post = pgTable("posts", {
   category: varchar("category", { length: 255 })
     .$type<(typeof POST_CATEGORY)[keyof typeof POST_CATEGORY]>()
     .notNull(),
+  imageUrls: text("image_urls").array(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

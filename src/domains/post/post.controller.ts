@@ -62,11 +62,8 @@ export class PostController {
       }
 
       // 2. 업로드된 이미지를 Base64로 변환
-      const imageDataArray: ImageData[] = await Promise.all(
-        files.map(async (file) => {
-          const buffer = await file.toBuffer();
-          return processImageBuffer(buffer, file.mimetype);
-        })
+      const imageDataArray: ImageData[] = files.map((file: any) =>
+        processImageBuffer(file.buffer, file.mimetype)
       );
 
       const { userId } = req.user!;
@@ -92,9 +89,10 @@ export class PostController {
   async getMyPosts(@Req() req: AuthRequest, @Query() query: GetMyPostsDto) {
     const { userId } = req.user!;
     const dto = getMyPostsValidator.validate(query);
-    const posts = await this.postService.getPostsByUserId(userId, dto);
-    return posts;
+    return await this.postService.getPostsByUserId(userId, dto);
   }
+
+  // 내가 생성한 블로그 포스트 삭제
   @Delete()
   @UseGuards(AuthGuard, ApiGuard)
   async deletePost(@Req() req: AuthRequest, @Body() body: DeletePostDto) {

@@ -1,5 +1,12 @@
 import { ImageData } from "@common/types/image.type";
-import multer from "multer";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { env } from "@common/configs/env.config";
 /**
  * 이미지 Buffer와 MIME 타입을 받아 Base64 인코딩된 ImageData 객체를 반환합니다.
  * @param buffer 이미지 파일의 Buffer
@@ -23,12 +30,56 @@ export const processImageBuffer = (
   };
 };
 
-// Multer 설정: 메모리 스토리지 사용 (Cloud Run에서 파일 시스템에 저장하는 것보다 간단)
-// 주의: 메모리 사용량이 증가할 수 있으므로, 큰 파일이나 많은 파일을 다룰 때는 위험할 수 있습니다.
-export const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB 파일 크기 제한 (필요에 따라 조정)
-    files: 5, // 최대 5개 파일 (필요에 따라 조정)
+// S3 클라이언트 생성
+const region = "ap-northeast-2";
+const s3 = new S3Client({
+  region,
+  credentials: {
+    accessKeyId: env.AWS.ACCESS_KEY_ID,
+    secretAccessKey: env.AWS.SECRET_ACCESS_KEY,
   },
 });
+
+/**
+ * S3에 이미지 업로드
+ * @param buffer 이미지 파일의 Buffer
+ * @param key S3에 저장할 경로/파일명
+ * @param mimeType 이미지의 MIME 타입
+ * @returns 업로드된 이미지의 S3 URL
+ */
+export async function uploadImageToS3(
+  buffer: Buffer,
+  key: string,
+  mimeType: string
+): Promise<string> {
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: env.AWS.BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: mimeType,
+    })
+  );
+  return `https://${env.AWS.BUCKET}.s3.${region}.amazonaws.com/${key}`;
+}
+
+/**
+ * S3에서 이미지 삭제
+ * @param key S3에 저장된 경로/파일명
+ */
+export async function deleteImageFromS3(key: string) {
+  await s3.send(
+    new DeleteObjectCommand({
+      Bucket: env.AWS.BUCKET,
+      Key: key,
+    })
+  );
+}
+
+export async function getPresignedImageUrl(key: string, expiresInSec = 60) {
+  const command = new GetObjectCommand({
+    Bucket: process.env.AWS_BUCKET,
+    Key: key,
+  });
+  return await getSignedUrl(s3, command, { expiresIn: expiresInSec });
+}

@@ -1,5 +1,11 @@
 import Joi from "joi";
-import { AppEnv, AuthEnv, GeminiEnv, ServerEnv } from "@common/types/env.type";
+import {
+  AppEnv,
+  AuthEnv,
+  AWSEnv,
+  GeminiEnv,
+  ServerEnv,
+} from "@common/types/env.type";
 
 const envSchema = Joi.object<AppEnv>({
   SERVER: Joi.object<ServerEnv>({
@@ -43,6 +49,17 @@ const envSchema = Joi.object<AppEnv>({
     }),
     REFRESH_TOKEN_EXPIRES_IN: Joi.string().required().messages({
       "any.required": "AUTH.REFRESH_TOKEN_EXPIRES_IN은 필수입니다.",
+    }),
+  }).required(),
+  AWS: Joi.object<AWSEnv>({
+    BUCKET: Joi.string().required().messages({
+      "any.required": "AWS.BUCKET은 필수입니다.",
+    }),
+    ACCESS_KEY_ID: Joi.string().required().messages({
+      "any.required": "AWS.ACCESS_KEY_ID은 필수입니다.",
+    }),
+    SECRET_ACCESS_KEY: Joi.string().required().messages({
+      "any.required": "AWS.SECRET_ACCESS_KEY은 필수입니다.",
     }),
   }).required(),
 }).unknown(true); // 알 수 없는 키를 허용하려면 false로 변경 (여기서는 env.ts에 정의된 것만 검사)

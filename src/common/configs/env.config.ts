@@ -20,6 +20,11 @@ const rawEnv = {
     ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN!,
     REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN!,
   },
+  AWS: {
+    BUCKET: process.env.AWS_BUCKET!,
+    ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID!,
+    SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 };
 
 let validatedEnv: AppEnv;

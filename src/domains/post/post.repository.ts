@@ -32,6 +32,7 @@ export class PostRepository {
     content: string;
     category: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
     authorId: string;
+    imageUrls: string[];
   }) {
     return (await db.insert(Post).values(dto).returning())[0];
   }

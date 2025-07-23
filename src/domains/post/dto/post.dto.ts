@@ -64,7 +64,7 @@ export class CreatePostValidator extends BaseValidator<CreatePostDto> {
     }),
     category: Joi.string()
       .valid(...Object.values(POST_CATEGORY))
-      .optional()
+      .required()
       .messages({
         "any.only": "유효하지 않은 카테고리입니다.",
       }),

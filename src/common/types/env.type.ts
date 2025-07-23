@@ -8,6 +8,12 @@ export interface GeminiEnv {
   API_KEY: string;
 }
 
+export interface AWSEnv {
+  BUCKET: string;
+  ACCESS_KEY_ID: string;
+  SECRET_ACCESS_KEY: string;
+}
+
 export interface AuthEnv {
   JWT_SECRET: string;
   SALT: string;
@@ -19,4 +25,5 @@ export interface AppEnv {
   SERVER: ServerEnv;
   GEMINI: GeminiEnv;
   AUTH: AuthEnv;
+  AWS: AWSEnv;
 }
