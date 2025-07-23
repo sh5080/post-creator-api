@@ -4,7 +4,6 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from "@nestjs/common";
-import { Request } from "express";
 import jwt from "jsonwebtoken";
 import {
   verifyAccessToken,
@@ -33,7 +32,6 @@ export class AuthGuard implements CanActivate {
     try {
       const accessToken = authHeader.split(" ")[1];
       const decoded = await verifyAccessToken(accessToken);
-
       // 요청 객체에 사용자 정보 추가
       (request as AuthRequest).user = decoded;
       return true;
