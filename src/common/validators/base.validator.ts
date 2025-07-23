@@ -44,3 +44,11 @@ export abstract class BaseValidator<T> {
     return value;
   }
 }
+
+export const idSchema = Joi.string()
+  .guid({ version: "uuidv4" })
+  .required()
+  .messages({
+    "any.required": "ID 입력은 필수입니다.",
+    "string.guid": "유효한 형식이 아닙니다.",
+  });

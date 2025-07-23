@@ -14,9 +14,9 @@ export const Post = pgTable("posts", {
   title: varchar("title", { length: 255 }).notNull(),
   content: varchar("content", { length: 5000 }).notNull(),
   authorId: uuid("author_id").references(() => User.id),
-  category: varchar("category", { length: 255 }).$type<
-    (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY]
-  >(),
+  category: varchar("category", { length: 255 })
+    .$type<(typeof POST_CATEGORY)[keyof typeof POST_CATEGORY]>()
+    .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
