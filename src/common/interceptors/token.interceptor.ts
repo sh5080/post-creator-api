@@ -7,6 +7,7 @@ import {
 import { Observable } from "rxjs";
 import { tap } from "rxjs/operators";
 import { FastifyReply } from "fastify";
+import { sendAuthTokens } from "@common/utils/token.util";
 
 @Injectable()
 export class TokenInterceptor implements NestInterceptor {
@@ -16,6 +17,8 @@ export class TokenInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
+        const tokens = (request as any).tokens;
+        sendAuthTokens(response, tokens.accessToken, tokens.refreshToken);
         const apiToken = (request as any).apiToken;
         if (apiToken) {
           response.header("X-A-Token", apiToken);
