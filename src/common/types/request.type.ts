@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { FastifyRequest } from "fastify";
 
 export interface UserPayload {
   tokens?: {
@@ -12,7 +12,7 @@ export interface UserPayload {
   exp?: number;
 }
 
-export interface AuthRequest extends Request {
+export interface AuthRequest extends FastifyRequest {
   user?: UserPayload;
 }
 
