@@ -20,6 +20,10 @@ export interface CreatePostDto {
 
 export interface GetMyPostsDto extends PaginationQuery {}
 
+export interface DeletePostDto {
+  id: string;
+}
+
 // Template 관련 DTO
 export interface CreateTemplateDto {
   name: string;
@@ -104,7 +108,13 @@ export class GetMyPostsValidator extends PaginationValidator {
   });
 }
 
-// Template Validator
+export class DeletePostValidator extends BaseValidator<DeletePostDto> {
+  protected schema = Joi.object<DeletePostDto>({
+    id: idSchema,
+  });
+}
+
+// ------------------- Template Validator -------------------
 export class CreateTemplateValidator extends BaseValidator<CreateTemplateDto> {
   protected schema = Joi.object<CreateTemplateDto>({
     name: Joi.string().min(1).max(100).required().messages({
@@ -162,9 +172,11 @@ export class DeleteTemplateValidator extends BaseValidator<DeleteTemplateDto> {
     id: idSchema,
   });
 }
-
+// Post Validator
 export const createPostValidator = new CreatePostValidator();
 export const getMyPostsValidator = new GetMyPostsValidator();
+export const deletePostValidator = new DeletePostValidator();
+// Template Validator
 export const createTemplateValidator = new CreateTemplateValidator();
 export const getPublicTemplatesValidator = new GetPublicTemplatesValidator();
 export const getMyTemplatesValidator = new GetMyTemplatesValidator();

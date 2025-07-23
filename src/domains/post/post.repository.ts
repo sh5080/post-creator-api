@@ -5,6 +5,7 @@ import { User } from "@common/models/user.model";
 import { and, eq, desc, like } from "drizzle-orm";
 import {
   CreateTemplateDto,
+  DeletePostDto,
   GetMyPostsDto,
   GetMyTemplatesDto,
   GetPublicTemplatesDto,
@@ -34,6 +35,14 @@ export class PostRepository {
   }) {
     return (await db.insert(Post).values(dto).returning())[0];
   }
+
+  async deletePost(userId: string, dto: DeletePostDto) {
+    return await db
+      .delete(Post)
+      .where(and(eq(Post.id, dto.id), eq(Post.authorId, userId)));
+  }
+
+  // ------------------- Template -------------------
 
   async createTemplate(userId: string, dto: CreateTemplateDto) {
     return (

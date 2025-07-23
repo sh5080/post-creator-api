@@ -12,6 +12,8 @@ import {
   deleteTemplateValidator,
   GetMyPostsDto,
   getMyPostsValidator,
+  DeletePostDto,
+  deletePostValidator,
 } from "./dto/post.dto";
 import { PostService } from "./post.service";
 import { processImageBuffer } from "@common/utils/image.util";
@@ -92,6 +94,13 @@ export class PostController {
     const dto = getMyPostsValidator.validate(query);
     const posts = await this.postService.getPostsByUserId(userId, dto);
     return posts;
+  }
+  @Delete()
+  @UseGuards(AuthGuard, ApiGuard)
+  async deletePost(@Req() req: AuthRequest, @Body() body: DeletePostDto) {
+    const { userId } = req.user!;
+    const dto = deletePostValidator.validate(body);
+    return await this.postService.deletePost(userId, dto);
   }
 
   //  ------------- template ------------

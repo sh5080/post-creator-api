@@ -8,6 +8,7 @@ import {
   GetMyTemplatesDto,
   GetMyFavoriteTemplatesDto,
   GetMyPostsDto,
+  DeletePostDto,
 } from "./dto/post.dto";
 import { PostRepository } from "./post.repository";
 import { Injectable, NotFoundException } from "@nestjs/common";
@@ -49,6 +50,14 @@ export class PostService {
   async getPostsByUserId(userId: string, dto: GetMyPostsDto) {
     const posts = await this.postRepository.findByUserId(userId, dto);
     return createPaginationResponse(posts, dto);
+  }
+
+  async deletePost(userId: string, dto: DeletePostDto) {
+    const deletedPost = await this.postRepository.deletePost(userId, dto);
+    if (deletedPost.rowCount === 0) {
+      throw new NotFoundException("삭제할 포스트가 존재하지 않습니다.");
+    }
+    return;
   }
 
   //    ------------- template -------------
