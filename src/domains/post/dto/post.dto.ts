@@ -10,11 +10,15 @@ import {
 // Post 관련 DTO
 export interface CreatePostDto {
   title: string;
-  postCategory: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
   clientRequestPrompt: string;
   keywords: string[];
   keywordCount: number;
+  category: (typeof POST_CATEGORY)[keyof typeof POST_CATEGORY];
+  requiredContentLength: number;
+  templateId?: string;
 }
+
+export interface GetMyPostsDto extends PaginationQuery {}
 
 // Template 관련 DTO
 export interface CreateTemplateDto {
@@ -32,6 +36,7 @@ export interface GetPublicTemplatesDto extends PaginationQuery {
 
 // 내가 생성한 템플릿 조회 DTO
 export interface GetMyTemplatesDto extends PaginationQuery {
+  name?: string;
   sort?: "latest" | "popular";
 }
 
@@ -53,9 +58,13 @@ export class CreatePostValidator extends BaseValidator<CreatePostDto> {
       "string.max": "제목은 최대 100자 이하여야 합니다.",
       "any.required": "제목은 필수입니다.",
     }),
-    postCategory: Joi.string()
+    category: Joi.string()
       .valid(...Object.values(POST_CATEGORY))
-      .optional(),
+      .optional()
+      .messages({
+        "any.only": "유효하지 않은 카테고리입니다.",
+      }),
+    templateId: idSchema.optional(),
     clientRequestPrompt: Joi.string().min(10).max(1000).required().messages({
       "string.min": "요청사항 프롬프트는 최소 10자 이상이어야 합니다.",
       "string.max": "요청사항 프롬프트는 최대 1000자 이하여야 합니다.",
@@ -77,13 +86,21 @@ export class CreatePostValidator extends BaseValidator<CreatePostDto> {
       .min(1)
       .max(10)
       .default(1)
-      .custom((value, helpers) => {
+      .custom((value) => {
         return typeof value === "string" ? parseInt(value) : value;
       })
       .messages({
         "number.min": "키워드는 최소 1회 이상 포함되어야 합니다.",
         "number.max": "각 키워드는 최대 10회까지 포함될 수 있습니다.",
       }),
+    requiredContentLength: Joi.number().min(1000).max(10000).required(),
+  });
+}
+
+// GetMyPosts Validator
+export class GetMyPostsValidator extends PaginationValidator {
+  protected schema = Joi.object<GetMyPostsDto>({
+    ...commonPaginationSchema,
   });
 }
 
@@ -126,7 +143,10 @@ export class GetPublicTemplatesValidator extends PaginationValidator {
 
 // GetMyTemplates Validator
 export class GetMyTemplatesValidator extends PaginationValidator {
-  protected schema = Joi.object<GetMyTemplatesDto>(commonPaginationSchema);
+  protected schema = Joi.object<GetMyTemplatesDto>({
+    ...commonPaginationSchema,
+    name: Joi.string().optional(),
+  });
 }
 
 // GetMyFavoriteTemplates Validator
@@ -138,10 +158,13 @@ export class GetMyFavoriteTemplatesValidator extends PaginationValidator {
 
 // DeleteTemplate Validator
 export class DeleteTemplateValidator extends BaseValidator<DeleteTemplateDto> {
-  protected schema = Joi.object<DeleteTemplateDto>(idSchema);
+  protected schema = Joi.object<DeleteTemplateDto>({
+    id: idSchema,
+  });
 }
 
 export const createPostValidator = new CreatePostValidator();
+export const getMyPostsValidator = new GetMyPostsValidator();
 export const createTemplateValidator = new CreateTemplateValidator();
 export const getPublicTemplatesValidator = new GetPublicTemplatesValidator();
 export const getMyTemplatesValidator = new GetMyTemplatesValidator();

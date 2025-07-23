@@ -2,8 +2,13 @@ import { db } from "@common/configs/database.config";
 import { Post, POST_CATEGORY } from "@common/models/post.model";
 import { PostTemplate } from "@common/models/postTemplate.model";
 import { User } from "@common/models/user.model";
-import { and, eq, desc } from "drizzle-orm";
-import { CreateTemplateDto, GetPublicTemplatesDto } from "./dto/post.dto";
+import { and, eq, desc, like } from "drizzle-orm";
+import {
+  CreateTemplateDto,
+  GetMyPostsDto,
+  GetMyTemplatesDto,
+  GetPublicTemplatesDto,
+} from "./dto/post.dto";
 import { TemplateFavorite } from "@common/models/templateFavorite.model";
 import { postTemplateQuery } from "./post.query";
 
@@ -12,8 +17,13 @@ export class PostRepository {
     return (await db.select().from(Post).where(eq(Post.id, postId)))[0];
   }
 
-  async findByUserId(userId: string) {
-    return await db.select().from(Post).where(eq(Post.authorId, userId));
+  async findByUserId(userId: string, dto?: GetMyPostsDto) {
+    const conditions = [eq(Post.authorId, userId)];
+
+    return await db
+      .select()
+      .from(Post)
+      .where(and(...conditions));
   }
 
   async createPost(dto: {
@@ -55,16 +65,25 @@ export class PostRepository {
 
     return await query;
   }
+  async findTemplateById(id: string) {
+    return (
+      await db.select().from(PostTemplate).where(eq(PostTemplate.id, id))
+    )[0];
+  }
+  async findTemplatesByUserId(userId: string, dto?: GetMyTemplatesDto) {
+    const conditions = [eq(PostTemplate.authorId, userId)];
+    if (dto?.name) {
+      conditions.push(like(PostTemplate.name, `%${dto.name}%`));
+    }
 
-  async findTemplatesByUserId(userId: string, dto?: { sort?: string }) {
-    const query = db
+    let query = db
       .select(postTemplateQuery.selectTemplates)
       .from(PostTemplate)
       .innerJoin(User, eq(PostTemplate.authorId, User.id))
-      .where(eq(PostTemplate.authorId, userId));
+      .where(and(...conditions));
 
     if (dto?.sort === "latest") {
-      return await query.orderBy(desc(PostTemplate.createdAt));
+      query.orderBy(desc(PostTemplate.createdAt));
     }
 
     return await query;

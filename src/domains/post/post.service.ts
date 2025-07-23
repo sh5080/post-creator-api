@@ -1,4 +1,4 @@
-import { buildGeminiPrompt } from "@common/utils/promptBuilder.util";
+import { buildPostPrompt } from "@common/utils/promptBuilder.util";
 import { generateBlogPostWithGemini } from "@gemini/gemini.service";
 import { ImageData } from "@common/types/image.type";
 import {
@@ -7,10 +7,13 @@ import {
   GetPublicTemplatesDto,
   GetMyTemplatesDto,
   GetMyFavoriteTemplatesDto,
+  GetMyPostsDto,
 } from "./dto/post.dto";
 import { PostRepository } from "./post.repository";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { createPaginationResponse } from "@common/utils/pagination.util";
+import { PostTemplate } from "@common/models/postTemplate.model";
+import { Part } from "@google/generative-ai";
 
 @Injectable()
 export class PostService {
@@ -20,27 +23,32 @@ export class PostService {
     dto: CreatePostDto,
     imageDataArray: ImageData[]
   ) {
-    // 3. Gemini API 프롬프트 구성
-    const promptParts = buildGeminiPrompt(
-      dto.clientRequestPrompt,
-      dto.keywords,
-      dto.keywordCount,
-      imageDataArray
-    );
+    let promptParts: Part[];
+    let template: typeof PostTemplate.$inferSelect | undefined = undefined;
+    // 1. 템플릿 조회
+    if (dto.templateId) {
+      template = await this.postRepository.findTemplateById(dto.templateId);
+      if (!template || template.authorId !== userId) {
+        throw new NotFoundException("템플릿이 존재하지 않습니다.");
+      }
+    }
+    // 2. Gemini API 프롬프트 구성
+    promptParts = buildPostPrompt(dto, imageDataArray, template);
 
-    // 4. Gemini API 호출
+    // 3. Gemini API 호출
     const generatedBlogPost = await generateBlogPostWithGemini(promptParts);
-
+    // 4. 포스트 생성
     return await this.postRepository.createPost({
       title: dto.title,
       content: generatedBlogPost,
-      category: dto.postCategory,
+      category: dto.category,
       authorId: userId,
     });
   }
 
-  async getPostsByUserId(userId: string) {
-    return await this.postRepository.findByUserId(userId);
+  async getPostsByUserId(userId: string, dto: GetMyPostsDto) {
+    const posts = await this.postRepository.findByUserId(userId, dto);
+    return createPaginationResponse(posts, dto);
   }
 
   //    ------------- template -------------

@@ -11,6 +11,8 @@ import {
   GetMyFavoriteTemplatesDto,
   getMyFavoriteTemplatesValidator,
   deleteTemplateValidator,
+  GetMyPostsDto,
+  getMyPostsValidator,
 } from "./dto/post.dto";
 import { PostService } from "./post.service";
 import { processImageBuffer } from "@common/utils/image.util";
@@ -28,8 +30,11 @@ import {
   Query,
   Delete,
   Param,
+  UseInterceptors,
 } from "@nestjs/common";
 import { AuthGuard } from "@common/guards/auth.guard";
+import { MultipartInterceptor } from "@common/interceptors/multipart.interceptor";
+import { MultipartFile } from "@fastify/multipart";
 
 @Controller("api/posts")
 export class PostController {
@@ -38,13 +43,14 @@ export class PostController {
   // 블로그 포스트 생성
   @Post()
   @UseGuards(AuthGuard)
+  @UseInterceptors(MultipartInterceptor)
   async createPost(
     @Req() req: AuthRequest,
     @Body() body: CreatePostDto,
-    @UploadedFiles() files: Express.Multer.File[]
+    @UploadedFiles() files: MultipartFile[]
   ) {
     try {
-      // body.keywords = JSON.parse(body.keywords);
+      body.keywords = JSON.parse(body.keywords as any);
       const dto = createPostValidator.validate(body);
 
       if (!files || files.length === 0) {
@@ -54,11 +60,12 @@ export class PostController {
       }
 
       // 2. 업로드된 이미지를 Base64로 변환
-      const imageDataArray: ImageData[] = files.map((file) =>
+      const imageDataArray: ImageData[] = files.map((file: any) =>
         processImageBuffer(file.buffer, file.mimetype)
       );
+
       const { userId } = req.user!;
-      const generatedBlogPost = await this.postService.createPost(
+      const generatedPost = await this.postService.createPost(
         userId,
         dto,
         imageDataArray
@@ -66,7 +73,7 @@ export class PostController {
       // 5. 결과 반환
       return {
         message: "블로그 포스트가 성공적으로 생성되었습니다.",
-        blogPost: generatedBlogPost,
+        post: generatedPost,
       };
     } catch (error: any) {
       console.error(error);
@@ -77,9 +84,10 @@ export class PostController {
   // 내가 생성한 블로그 포스트 조회
   @Get("my")
   @UseGuards(AuthGuard)
-  async getMyPosts(req: AuthRequest, res: Response) {
+  async getMyPosts(@Req() req: AuthRequest, @Query() query: GetMyPostsDto) {
     const { userId } = req.user!;
-    const posts = await this.postService.getPostsByUserId(userId);
+    const dto = getMyPostsValidator.validate(query);
+    const posts = await this.postService.getPostsByUserId(userId, dto);
     return posts;
   }
 
