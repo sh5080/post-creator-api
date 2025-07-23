@@ -1,4 +1,3 @@
-import { Response } from "express";
 import {
   CreatePostDto,
   createPostValidator,
@@ -33,6 +32,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { AuthGuard } from "@common/guards/auth.guard";
+import { ApiGuard } from "@common/guards/api.guard";
 import { MultipartInterceptor } from "@common/interceptors/multipart.interceptor";
 import { MultipartFile } from "@fastify/multipart";
 
@@ -42,7 +42,7 @@ export class PostController {
 
   // 블로그 포스트 생성
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ApiGuard)
   @UseInterceptors(MultipartInterceptor)
   async createPost(
     @Req() req: AuthRequest,
@@ -60,8 +60,11 @@ export class PostController {
       }
 
       // 2. 업로드된 이미지를 Base64로 변환
-      const imageDataArray: ImageData[] = files.map((file: any) =>
-        processImageBuffer(file.buffer, file.mimetype)
+      const imageDataArray: ImageData[] = await Promise.all(
+        files.map(async (file) => {
+          const buffer = await file.toBuffer();
+          return processImageBuffer(buffer, file.mimetype);
+        })
       );
 
       const { userId } = req.user!;
@@ -75,7 +78,7 @@ export class PostController {
         message: "블로그 포스트가 성공적으로 생성되었습니다.",
         post: generatedPost,
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       throw error;
     }
@@ -95,7 +98,7 @@ export class PostController {
 
   // 템플릿 생성
   @Post("templates")
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ApiGuard)
   async createTemplate(
     @Body() body: CreateTemplateDto,
     @Req() req: AuthRequest
@@ -138,7 +141,7 @@ export class PostController {
 
   // 템플릿 삭제
   @Delete("templates/:id")
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, ApiGuard)
   async deleteTemplate(@Param("id") id: string, @Req() req: AuthRequest) {
     const { userId } = req.user!;
     const dto = deleteTemplateValidator.validate({ id });

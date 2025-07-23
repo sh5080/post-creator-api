@@ -20,27 +20,4 @@ export class AuthValidator extends BaseValidator<LoginDto> {
   });
 }
 
-export const ACTIVITY_TYPES = {
-  UPDATE_NICKNAME: "update-nickname",
-  UPDATE_PASSWORD: "update-password",
-} as const;
-
-export type ActivityType = (typeof ACTIVITY_TYPES)[keyof typeof ACTIVITY_TYPES];
-
-export interface ActivityDto {
-  activity: ActivityType;
-}
-
-export class ActivityValidator extends BaseValidator<ActivityDto> {
-  protected schema = Joi.object<ActivityDto>({
-    activity: Joi.string()
-      .valid(...Object.values(ACTIVITY_TYPES))
-      .required()
-      .messages({
-        "any.required": "활동 타입은 필수 입력 항목입니다.",
-        "any.only": "유효하지 않은 활동 타입입니다.",
-      }),
-  });
-}
 export const authValidator = new AuthValidator();
-export const activityValidator = new ActivityValidator();

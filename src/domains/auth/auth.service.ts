@@ -36,13 +36,4 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
-  async generateActivityToken(
-    user: typeof User.$inferSelect,
-    activity: string
-  ) {
-    return await generateToken({
-      userId: user.id,
-      activity,
-    });
-  }
 }
