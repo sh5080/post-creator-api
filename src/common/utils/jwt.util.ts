@@ -11,7 +11,7 @@ interface TokenPayload {
 }
 export async function generateToken(payload: any) {
   return jwt.sign(payload, env.AUTH.JWT_SECRET, {
-    expiresIn: "1m",
+    expiresIn: "6h",
   });
 }
 
